@@ -1,6 +1,6 @@
 use serde::Deserialize;
 use serde_json;
-use std::{error::Error, io};
+use std::error::Error;
 use std::io::prelude::*;
 use std::fs::File;
 use rand::Rng;
@@ -18,8 +18,8 @@ pub struct JinglesDb {
 }
 
 impl JinglesDb {
-    fn new(jsonFilePath: String) -> Result<Self, Box<dyn Error>> {
-        let mut f = File::open("foo.txt")?;
+    pub fn new(json_file_path: String) -> Result<Self, Box<dyn Error>> {
+        let mut f = File::open(json_file_path)?;
         let mut buffer = String::new();
         f.read_to_string(&mut buffer)?;
 
@@ -30,10 +30,11 @@ impl JinglesDb {
         })
     }
 
-    fn get_random_entry(&self) -> JingleDbObject{
+    pub fn get_random_entry(&self) -> JingleDbObject {
         let mut rng = rand::thread_rng();
         let index = rng.gen_range(0, self.db.len()-1);
-
-        self.db[index].clone()
+        let db_object = self.db[index].clone();
+        println!("Selected jingle no {} with name: {}", index, db_object.name);
+        db_object
     }
 }
