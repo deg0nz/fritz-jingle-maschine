@@ -22,14 +22,14 @@ impl Cli {
  
     let jingles_path;
 
-        if let Some(files_path) = matches.value_of("FILES-PATH") {
-            jingles_path = files_path.to_string();
-        } else {
-            panic!()
-        }
+     if let Some(files_path) = matches.value_of("FILES-PATH") {
+         jingles_path = files_path.to_string();
+     } else {
+         panic!()
+     }
 
-        Self {
-            jingles_path
-        }
+     Self {
+         jingles_path
+     }
     }
 }

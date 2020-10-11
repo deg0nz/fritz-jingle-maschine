@@ -1,37 +1,35 @@
 use std::{error::Error, fs::File, io::BufReader};
-use rodio::{Device, Source};
-
+use rodio::{OutputStream, OutputStreamHandle, PlayError};
 use crate::jingles_db::JinglesDb;
 
 pub struct JinglePlayer {
-    device: Device,
-    jingles_db: JinglesDb,
-    jingles_path: String
+    stream: OutputStream,
+    stream_handle: OutputStreamHandle,
+    jingles_db: JinglesDb
 }
 
 impl JinglePlayer {
     pub fn new(jingles_path: String) -> Self {
-        let device = rodio::default_output_device().unwrap();
-        let jingles_db = JinglesDb::new(format!("{}/db.json", jingles_path)).unwrap();
+        let (stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
+        let jingles_db = JinglesDb::new(format!("{}/jingles/db.json", jingles_path)).unwrap();
 
         Self {
-            device,
-            jingles_db,
-            jingles_path
+            stream,
+            stream_handle,
+            jingles_db
         }
     }
 
-    fn play_file(&self, path: String) -> Result<(), Box<dyn Error>>{
+    pub fn play_file(&self, path: String) -> Result<(), PlayError>{
         let file = File::open(path).unwrap();
-        // let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
-        let sink = rodio::play_once(&self.device, file)?;
+        let sink = self.stream_handle.play_once(BufReader::new(file))?;
         sink.sleep_until_end();
         Ok(())
     }
 
-    pub fn play_random(&self) {
+    pub fn play_random(&self) -> Result<(), PlayError>{
         let jingle = self.jingles_db.get_random_entry();
-        let file_path = format!("{}{}", self.jingles_path, jingle.file_path);
-        self.play_file(file_path).unwrap();
+        self.play_file(jingle.file_path)?;
+        Ok(())
     }
 }
