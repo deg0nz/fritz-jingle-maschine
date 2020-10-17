@@ -1,5 +1,5 @@
 use std::{error::Error, fs::File, io::BufReader};
-use rodio::{OutputStream, OutputStreamHandle, PlayError};
+use rodio::{Device, Sink};
 use crate::jingles_db::{ JinglesDb, JingleDbObject };
 
 pub struct JinglePlayer {
@@ -10,19 +10,18 @@ pub struct JinglePlayer {
 
 impl JinglePlayer {
     pub fn new(jingles_path: String) -> Self {
-        let (stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
         let jingles_db = JinglesDb::new(format!("{}/jingles/db.json", jingles_path)).unwrap();
+        let device = rodio::default_output_device().unwrap();
 
         Self {
-            stream,
-            stream_handle,
-            jingles_db
+            device,
+            jingles_db,
         }
     }
 
     pub fn play_file(&self, path: String) -> Result<(), PlayError>{
         let file = File::open(path).unwrap();
-        let sink = self.stream_handle.play_once(BufReader::new(file))?;
+        let sink = rodio::play_once(&self.device, file)?;
         sink.sleep_until_end();
         println!("Finished playing file");
         Ok(())
@@ -31,7 +30,9 @@ impl JinglePlayer {
     pub fn play_random(&self) -> Result<(), PlayError>{
         let jingle = self.jingles_db.get_random_entry();
         self.print_jingle_playing(&jingle);
-        self.play_file(jingle.file_path)?;
+        let jingle_file_path = self.jingles_base_path.join(jingle.file_path);
+        println!("Jingle file path: {}", jingle_file_path.to_str().unwrap());
+        self.play_file(jingle_file_path)?;
         Ok(())
     }
 
