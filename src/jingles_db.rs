@@ -1,6 +1,6 @@
 use serde::Deserialize;
 use serde_json;
-use std::error::Error;
+use std::{error::Error, path::PathBuf};
 use std::io::prelude::*;
 use std::fs::File;
 use rand::Rng;
@@ -18,7 +18,7 @@ pub struct JinglesDb {
 }
 
 impl JinglesDb {
-    pub fn new(json_file_path: String) -> Result<Self, Box<dyn Error>> {
+    pub fn new(json_file_path: PathBuf) -> Result<Self, Box<dyn Error>> {
         let mut f = File::open(json_file_path)?;
         let mut buffer = String::new();
         f.read_to_string(&mut buffer)?;

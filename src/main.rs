@@ -9,15 +9,17 @@ use jingle_player::JinglePlayer;
 use cli::Cli;
 use std::thread::sleep;
 use std::time::Duration;
+use eyre::Result;
 
-const BTN_PIN: u64 = 15;
+// const BTN_PIN: u64 = 15;
 
 fn main() {
-    // let cli = Cli::new();
-    // let jingles_path = cli.jingles_path;
-    let jingles_path = "/home/pi/home/pi/Fritz-Jingle-Maschine/jingles".to_string();
+    let cli = Cli::new();
+    let jingles_path = cli.get_jingles_path();
+    let button_pin = cli.get_button_pin();
+    // let jingles_path = "/home/pi/home/pi/Fritz-Jingle-Maschine".to_string();
     let player = JinglePlayer::new(jingles_path);
-    let button = Pin::new(BTN_PIN);
+    let button = Pin::new(button_pin);
 
     button.with_exported(|| {
         button.set_direction(Direction::In).unwrap();
