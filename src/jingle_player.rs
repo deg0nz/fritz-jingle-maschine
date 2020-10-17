@@ -10,7 +10,7 @@ pub struct JinglePlayer {
 }
 
 impl JinglePlayer {
-    pub fn new(mut jingles_base_path: PathBuf) -> Self {
+    pub fn new(jingles_base_path: PathBuf) -> Self {
         let device = rodio::default_output_device().unwrap();
         let db_path = jingles_base_path.join("db.json");
         let jingles_db = JinglesDb::new(db_path).unwrap();
