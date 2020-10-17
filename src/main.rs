@@ -17,7 +17,6 @@ fn main() {
     let cli = Cli::new();
     let jingles_path = cli.get_jingles_path();
     let button_pin = cli.get_button_pin();
-    // let jingles_path = "/home/pi/home/pi/Fritz-Jingle-Maschine".to_string();
     let player = JinglePlayer::new(jingles_path);
     let button = Pin::new(button_pin);
 
