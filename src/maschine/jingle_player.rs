@@ -1,6 +1,6 @@
-use std::{error::Error, fs::File, io::BufReader, path::PathBuf};
-use rodio::{Device, Sink};
-use crate::jingles_db::{ JinglesDb, JingleDbObject };
+use std::{ fs::File, path::PathBuf};
+use rodio::Device;
+use super::jingles_db::{ JinglesDb, JingleDbObject };
 use eyre::Result;
 
 pub struct JinglePlayer {
