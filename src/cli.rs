@@ -1,7 +1,9 @@
 use clap::{App, Arg, ArgMatches};
 use std::path::Path;
 use super::maschine::Maschine;
+use super::downloader::Downloader;
 use eyre::Result;
+use futures::poll;
 
 pub struct Cli <'a> {
     app: App<'a>
@@ -43,7 +45,7 @@ impl<'a> Cli <'a> {
             .short('d')
             .long("download-jingles")
             .required_unless_present_any(&["RUN", "BUTTON-PIN"])
-            .requires("FILES_PATH")
+            .requires("FILES-PATH")
         );
 
         Self {
@@ -91,5 +93,9 @@ impl<'a> Cli <'a> {
         } else {
             panic!();
         }
+
+        
+        //  block_on(Downloader::new().await);
+        //     downloader.run();
     }
 }
