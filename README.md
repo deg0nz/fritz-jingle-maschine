@@ -24,18 +24,21 @@ For building the parts, go to the root of this repo and execute the correspondin
 ### `fritz-jingle-downloader`
 
 ``` bash
-cargo build --package fritz-jingle-downloader
+cargo build --release --package fritz-jingle-downloader
 ```
 
 ### `fritz-jingle-maschine`
 
+This is meant to be executed on the target device (the Raspberry Pi).
+For the sound to play back smoothly, the build *must* be a `--release` target!
+
 ``` bash
-cargo build --package fritz-jingle-maschine
+cargo build --release --package fritz-jingle-maschine
 ```
 
 ## Run
 
-TODO 
+You will find the executables in: `<PROJECT_ROOT>/target/release`.
 
 ## Disclaimer
 
