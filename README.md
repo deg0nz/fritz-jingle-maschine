@@ -1,21 +1,39 @@
 # Fritz Jingle Maschine
 
 This program randomly plays the famous jingles of the [Fritz radio station](https://www.fritz.de) aired in Berlin and Brandenburg, Germany.
-It is meant to be executed on a Raspberry Pi (or similar mini-computer) that has a button attached to it's GPIOs. A button press triggers the playback of a randomly chosen jingle.
+It is meant to be run on a Raspberry Pi (or similar mini-computer) that has a button attached to it's GPIOs. A button press triggers the playback of a randomly chosen jingle.
 
-## But Why?
+## Structure
 
-TODO
+The project is splitted into three parts:
+
+* `fritz-jingle-maschine` - the program that randomly plays jingles
+* `fritz-jingle-downloader` - a program that downloads or updates all the jingles from the fritz website
+* `fritz-jingle-db` - a shared library for handling metadata about the jingles in a JSON file
+
+The reason for the split was, that the compilation on an old Raspberry Pi is takes a looooooooong time (One of the reasons for this project was giving an old Raspberry Pi 1 a new purpose). To keep the amount of code for the Raspi at a minimum, the `maschine`-part has it's own workspace.
 
 ## Hardware
 
 TODO
 
-## Build this program
+## Build
 
-TODO 
+For building the parts, go to the root of this repo and execute the corresponding commands.
 
-## Run this program
+### `fritz-jingle-downloader`
+
+``` bash
+cargo build --package fritz-jingle-downloader
+```
+
+### `fritz-jingle-maschine`
+
+``` bash
+cargo build --package fritz-jingle-maschine
+```
+
+## Run
 
 TODO 
 
