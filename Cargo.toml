@@ -1,2 +1,2 @@
 [workspace]
-members = ["fritz-jingle-maschine", "fritz-jingle-downloader"]
+members = ["fritz_jingle_maschine", "fritz_jingle_downloader", "fritz_jingle_db"]
