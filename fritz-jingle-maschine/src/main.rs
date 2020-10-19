@@ -1,6 +1,5 @@
 mod cli;
 mod maschine;
-mod downloader;
 
 use cli::Cli;
 

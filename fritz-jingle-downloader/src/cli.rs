@@ -1,7 +1,9 @@
 use clap::{App, Arg, ArgMatches};
 use std::path::Path;
 use super::maschine::Maschine;
+use super::downloader::Downloader;
 use eyre::Result;
+use futures::poll;
 
 pub struct Cli <'a> {
     app: App<'a>
@@ -14,12 +16,20 @@ impl<'a> Cli <'a> {
         .about(env!("CARGO_PKG_DESCRIPTION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .arg(
+            Arg::new("RUN")
+                .takes_value(false)
+                .about("Runs the main app")
+                .short('r')
+                .long("run")
+                .requires_all(&["FILES-PATH", "BUTTON-PIN"])
+        )
+        .arg(
              Arg::new("FILES-PATH")
                  .about("Path to the Jingles files containing db.json and a folder called files containing the MP3s.")
                  .takes_value(true)
                  .short('f')
                  .long("files-path")
-                 .required(true)
+                 .default_value(".")
         )
         .arg(
              Arg::new("BUTTON-PIN")
@@ -27,8 +37,16 @@ impl<'a> Cli <'a> {
              .takes_value(true)
              .short('p')
              .long("pin")
-             .required(true)
-            );
+             .required_unless_present("DOWNLOAD")
+            )
+        .arg(
+            Arg::new("DOWNLOAD")
+            .about("Downloads or updates all the jingles from Fritz to a given path. If a db.json is found in the path, an update is assumed.")
+            .short('d')
+            .long("download-jingles")
+            .required_unless_present_any(&["RUN", "BUTTON-PIN"])
+            .requires("FILES-PATH")
+        );
 
         Self {
             app
@@ -42,6 +60,8 @@ impl<'a> Cli <'a> {
          
         if matches.is_present("RUN") {
             self.run_maschine(matches);
+        } else if matches.is_present("DOWNLOAD") {
+            self.run_download(matches);
         }
     }
 
@@ -63,5 +83,19 @@ impl<'a> Cli <'a> {
 
         let mut jingles_maschine = Maschine::new(button_pin, jingles_path);
         jingles_maschine.run().unwrap();
+    }
+
+    fn run_download(&self, matches: ArgMatches) {
+        let jingles_path;
+
+        if let Some(files_path) = matches.value_of("FILES-PATH") {
+            jingles_path = Path::new(files_path).to_path_buf();
+        } else {
+            panic!();
+        }
+
+        
+        //  block_on(Downloader::new().await);
+        //     downloader.run();
     }
 }
