@@ -288,16 +288,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "fritz_jingle_db"
-version = "0.1.0"
-dependencies = [
- "rand",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "fritz_jingle_maschine"
+name = "fritz-jingle-maschine"
 version = "0.1.0"
 dependencies = [
  "clap",
@@ -308,6 +299,15 @@ dependencies = [
  "serde",
  "serde_json",
  "sysfs_gpio",
+]
+
+[[package]]
+name = "fritz_jingle_db"
+version = "0.1.0"
+dependencies = [
+ "rand",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

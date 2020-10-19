@@ -1,5 +1,5 @@
 [package]
-name = "fritz_jingle_maschine"
+name = "fritz-jingle-maschine"
 version = "0.1.0"
 authors = ["Beh <b@kayuk.de>"]
 edition = "2018"
