@@ -1,20 +1,15 @@
+pub mod jingle;
+
 use serde::Deserialize;
 use serde_json;
 use std::{error::Error, path::PathBuf};
 use std::io::prelude::*;
 use std::fs::File;
 use rand::Rng;
+use jingle::Jingle;
 
-#[derive(Debug, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct JingleDbObject {
-    pub name: String,
-    pub url: String,
-    pub date_time: String,
-    pub file_path: String
-}
 pub struct JinglesDb {
-    db: Vec<JingleDbObject>
+    db: Vec<Jingle>
 }
 
 impl JinglesDb {
@@ -23,14 +18,14 @@ impl JinglesDb {
         let mut buffer = String::new();
         f.read_to_string(&mut buffer)?;
 
-        let db: Vec<JingleDbObject> = serde_json::from_str(buffer.as_str())?;
+        let db: Vec<Jingle> = serde_json::from_str(buffer.as_str())?;
 
         Ok(Self {
             db
         })
     }
 
-    pub fn get_random_entry(&self) -> JingleDbObject {
+    pub fn get_random_entry(&self) -> Jingle {
         let mut rng = rand::thread_rng();
         let index = rng.gen_range(0, self.db.len()-1);
         let db_object = self.db[index].clone();

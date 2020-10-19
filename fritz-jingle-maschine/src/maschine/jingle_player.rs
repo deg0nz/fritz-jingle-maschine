@@ -1,6 +1,6 @@
 use std::{ fs::File, path::PathBuf};
 use rodio::Device;
-use super::jingles_db::{ JinglesDb, JingleDbObject };
+use fritz_jingle_db::{ JinglesDb, jingle::Jingle };
 use eyre::Result;
 
 pub struct JinglePlayer {
@@ -39,7 +39,7 @@ impl JinglePlayer {
         Ok(())
     }
 
-    fn print_jingle_playing(&self, jingle: &JingleDbObject) {
+    fn print_jingle_playing(&self, jingle: &Jingle) {
         println!("Playing {name} (Published on {date})", name = jingle.name, date = jingle.date_time);
     }
 }
