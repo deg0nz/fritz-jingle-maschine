@@ -12,4 +12,4 @@ eyre = "0.6"
 reqwest = "0.10"
 select = "0.5"
 futures = "0.3"
-tokio = "0.3"
+tokio = { version = "0.3", features = ["full"] }
