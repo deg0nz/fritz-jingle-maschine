@@ -1,6 +1,5 @@
 pub mod jingle;
 
-use serde::Deserialize;
 use serde_json;
 use std::{error::Error, path::PathBuf};
 use std::io::prelude::*;

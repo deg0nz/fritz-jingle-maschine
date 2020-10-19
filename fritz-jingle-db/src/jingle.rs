@@ -1,6 +1,6 @@
-use serde::Deserialize;
+use serde::{ Serialize, Deserialize };
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Jingle {
     pub name: String,
