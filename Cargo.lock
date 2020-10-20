@@ -305,6 +305,7 @@ dependencies = [
 name = "fritz_jingle_db"
 version = "0.1.0"
 dependencies = [
+ "eyre",
  "rand",
  "serde",
  "serde_json",

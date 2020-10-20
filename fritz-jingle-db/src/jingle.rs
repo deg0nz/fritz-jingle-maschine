@@ -8,3 +8,9 @@ pub struct Jingle {
     pub date_time: String,
     pub file_path: String
 }
+
+impl PartialEq for Jingle {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
