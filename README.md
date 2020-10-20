@@ -42,4 +42,4 @@ You will find the executables in: `<PROJECT_ROOT>/target/release`.
 
 ## Disclaimer
 
-I am not, in any kind, related to Fritz or rbb. This is meant as a fun project to emphasize the greatness of these jingles. Since Fritz claims on it's [jingles website](https://www.fritz.de/programm/jingles/), that the jingles are "Zum Anhören, Runterladen und Weiterverschicken." (engl. "for listening, downloading and redistributing"), so a project like this one here should be no problem. The website [linkfang.org](https://de.linkfang.org/wiki/Creative_Commons) claims, that these jingles ar published under a CC-License.
+I am not, in any kind, related to Fritz or rbb. This is meant as a fun project to emphasize the greatness of these jingles. Since Fritz claims on it's [jingles website](https://www.fritz.de/programm/jingles/), that the jingles are "Zum Anhören, Runterladen und Weiterverschicken." (engl. "for listening, downloading and redistributing"), a project like this one here should be no problem. The website [linkfang.org](https://de.linkfang.org/wiki/Creative_Commons) claims, that these jingles ar published under a CC-License.
