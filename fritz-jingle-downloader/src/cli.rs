@@ -43,7 +43,7 @@ impl<'a> Cli <'a> {
         }
         
         let downloader = Downloader::new().await?;
-        downloader.run();
+        downloader.run().await?;
 
         Ok(())
     }
