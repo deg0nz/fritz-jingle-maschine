@@ -19,7 +19,8 @@ impl JinglesDb {
         let path = json_file_path;
 
         if let Err(_err) = File::open(&path) {
-            File::create(&path)?;
+            let file = File::create(&path)?;
+            serde_json::to_writer(file, &db)?;
         }
 
         Ok(Self {
@@ -29,9 +30,9 @@ impl JinglesDb {
     }
 
     pub fn load(&mut self) -> Result<()> {
-        let mut f = File::open(&self.path)?;
+        let mut file = File::open(&self.path)?;
         let mut buffer = String::new();
-        f.read_to_string(&mut buffer)?;
+        file.read_to_string(&mut buffer)?;
         self.db = serde_json::from_str(buffer.as_str())?;
         Ok(())
     }
@@ -39,7 +40,6 @@ impl JinglesDb {
     pub fn save(&self) -> Result<()>{
         let f = File::open(&self.path)?;
         serde_json::to_writer(f, &self.db)?;
-
         Ok(())
     }
 
