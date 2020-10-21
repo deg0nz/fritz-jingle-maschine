@@ -29,7 +29,7 @@ impl Downloader {
 
     pub async fn run(&self) -> Result<()>{
         let mut jingles: Vec<Jingle> = self.get_jingles_list().await?;
-        self.download_chunk(&mut jingles).await?;
+        self.download_jingles(&mut jingles).await?;
 
         Ok(())
     }
@@ -81,14 +81,10 @@ impl Downloader {
         Some(jingle)
     }
 
-    // async fn manage_downloads(&self, list: Vec<Jingle>) -> Result<()>{
-    //     let jingles = self.get_jingles_list().await?;
-    //     self.download_chunk(jingles);
-
-    //     Ok(())
-    // }
-
-    async fn download_chunk(&self, jingles: &mut Vec<Jingle>) -> Result<()>{
+    // TODO: Save downloaded file path to jingle
+    // TODO: Create database file from that
+    // TODO: Update mechanism
+    async fn download_jingles(&self, jingles: &mut Vec<Jingle>) -> Result<()>{
         let dl_path = Path::new(".").to_path_buf();
         let multibar = std::sync::Arc::new(indicatif::MultiProgress::new());
 
@@ -97,7 +93,7 @@ impl Downloader {
         indicatif::ProgressStyle::default_bar()
                 .template("{msg} [{bar:40.yellow}] {pos}/{len}")
         );
-        main_pb.set_message("Total  ");
+        main_pb.set_message("Total progress: ");
         main_pb.tick();
 
         let stream = stream::iter(jingles);
@@ -106,19 +102,14 @@ impl Downloader {
             let main_pb = main_pb.clone();
             let dl_path = dl_path.clone();
             async move {
-                let file_path = tokio::task::spawn(Downloader::download(jingle.clone(), multibar, dl_path)).await;
+                let file_path = tokio::task::spawn(Downloader::download_task(jingle.clone(), multibar, dl_path)).await;
                 main_pb.inc(1);
                 // jingle.file_path = String::from(file_path.as_os_str().to_str().unwrap());
             }
         });
 
         let multibar = {
-            // Create a clone of the multibar, which we will move into the task. 
             let multibar = multibar.clone();
-            
-            // multibar.join() is *not* async and will block until all the progress
-            // bars are done, therefore we must spawn it on a separate scheduler
-            // on which blocking behavior is allowed.
             tokio::task::spawn_blocking(move || { multibar.join() })
         };
 
@@ -134,7 +125,7 @@ impl Downloader {
     // This below is taken from https://www.reddit.com/r/rust/comments/9lrpru/download_file_with_progress_bar/
     // and from https://github.com/benkay86/async-applied
     // and adjusted to my needs
-    async fn download(jingle: Jingle, multibar: Arc<MultiProgress>, to_dir: PathBuf) -> Result<PathBuf> {
+    async fn download_task(jingle: Jingle, multibar: Arc<MultiProgress>, to_dir: PathBuf) -> Result<PathBuf> {
         let url = Url::parse(jingle.url.as_str())?;
         let client = Client::new();
     
@@ -159,7 +150,7 @@ impl Downloader {
         let mut request = client.get(url.as_str());
         let progress_bar = multibar.add(indicatif::ProgressBar::new(total_size));
         progress_bar.set_style(ProgressStyle::default_bar()
-                     .template("{spinner:.green} [{bar:40.cyan/blue}] {bytes}/{total_bytes} {msg}")
+                     .template("[{bar:40.cyan/blue}] {bytes}/{total_bytes} {msg}")
                      .progress_chars("#>-"));
         progress_bar.set_message(&filename.as_str());
 
