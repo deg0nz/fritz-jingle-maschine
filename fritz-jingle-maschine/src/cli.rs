@@ -39,13 +39,7 @@ impl<'a> Cli <'a> {
         // TODO: There has to be another solution to this than cloning?!
         let app = self.app.clone();
         let matches = app.get_matches().clone();
-         
-        if matches.is_present("RUN") {
-            self.run_maschine(matches);
-        }
-    }
-
-    fn run_maschine(&self, matches: ArgMatches) {
+        
         let jingles_path;
         let button_pin;
 
@@ -61,7 +55,7 @@ impl<'a> Cli <'a> {
             panic!();
         }
 
-        let mut jingles_maschine = Maschine::new(button_pin, jingles_path);
-        jingles_maschine.run().unwrap();
+        let mut jingle_maschine = Maschine::new(button_pin, jingles_path);
+        jingle_maschine.run().unwrap();
     }
 }
