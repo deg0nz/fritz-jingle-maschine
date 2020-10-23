@@ -1,7 +1,6 @@
-use clap::{App, Arg, ArgMatches};
+use clap::{App, Arg};
 use std::path::Path;
 use super::maschine::Maschine;
-use eyre::Result;
 
 pub struct Cli <'a> {
     app: App<'a>
