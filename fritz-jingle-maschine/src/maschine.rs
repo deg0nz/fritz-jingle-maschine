@@ -23,14 +23,15 @@ impl Maschine {
 
     pub fn run(&mut self) -> Result<()>{
         self.button.with_exported(|| {
-            self.button.set_direction(Direction::In).unwrap();
+            self.button.set_direction(Direction::In)?;
     
-            let mut btn_poller = self.button.get_poller().unwrap();
+            let mut btn_poller = self.button.get_poller()?;
             let mut count = 0;
-    
+            println!("Ready");
             loop {
                 let btn_value = btn_poller.poll(5)?;
                 if let Some(val ) = btn_value {
+                    dbg!("Some btn_value");
                     if val == 0 {
                         println!("{}: Got 0", count);
                     }
