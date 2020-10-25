@@ -1,3 +1,4 @@
 /target
 jingles/
 .vscode/
+**/target
