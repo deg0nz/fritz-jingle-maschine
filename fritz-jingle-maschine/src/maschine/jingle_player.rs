@@ -1,6 +1,6 @@
-use std::{error::Error, fs::File, io::BufReader, path::PathBuf};
-use rodio::{Device, Sink};
-use crate::jingles_db::{ JinglesDb, JingleDbObject };
+use std::{ fs::File, path::PathBuf};
+use rodio::Device;
+use fritz_jingle_db::{ JinglesDb, jingle::Jingle };
 use eyre::Result;
 
 pub struct JinglePlayer {
@@ -13,7 +13,8 @@ impl JinglePlayer {
     pub fn new(jingles_base_path: PathBuf) -> Self {
         let device = rodio::default_output_device().unwrap();
         let db_path = jingles_base_path.join("db.json");
-        let jingles_db = JinglesDb::new(db_path).unwrap();
+        let mut jingles_db = JinglesDb::new(db_path).unwrap();
+        jingles_db.load().expect("Error loading Database");
 
         Self {
             device,
@@ -31,7 +32,7 @@ impl JinglePlayer {
     }
 
     pub fn play_random(&self) -> Result<()>{
-        let jingle = self.jingles_db.get_random_entry();
+        let jingle = self.jingles_db.get_random_jingle();
         self.print_jingle_playing(&jingle);
         let jingle_file_path = self.jingles_base_path.join(jingle.file_path);
         println!("Jingle file path: {}", jingle_file_path.to_str().unwrap());
@@ -39,7 +40,7 @@ impl JinglePlayer {
         Ok(())
     }
 
-    fn print_jingle_playing(&self, jingle: &JingleDbObject) {
+    fn print_jingle_playing(&self, jingle: &Jingle) {
         println!("Playing {name} (Published on {date})", name = jingle.name, date = jingle.date_time);
     }
 }
