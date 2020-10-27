@@ -2,8 +2,8 @@ mod jingle_player;
 
 use jingle_player::JinglePlayer;
 use sysfs_gpio::{Direction, Edge, Pin};
-use std::path::PathBuf;
-use eyre::Result;
+use std::{path::PathBuf, thread, time};
+use eyre::{Result, WrapErr};
 
 pub struct Maschine {
     button: Pin,
@@ -30,21 +30,43 @@ impl Maschine {
         }
     }
 
-    pub fn run(&mut self) -> Result<()>{
+    fn signalize_ready_state(&self) -> Result<(), sysfs_gpio::Error>{
+        println!("Ready");
+
+        // Blink LED 3 times if connected
+        if let Some(led) = self.led {
+            let sleep_duration = time::Duration::from_millis(100);
+            for _n in 1..3 {
+                led.set_value(0)?;
+                thread::sleep(sleep_duration);
+                led.set_value(1)?;
+                thread::sleep(sleep_duration);
+                led.set_value(0)?;
+                thread::sleep(sleep_duration);
+                led.set_value(1)?;
+                thread::sleep(sleep_duration);
+                led.set_value(0)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn run(&mut self) -> Result<()> {
         self.button.with_exported(|| {
             self.button.set_direction(Direction::In)?;
             self.button.set_edge(Edge::FallingEdge)?;
-            
+            let mut btn_poller = self.button.get_poller()?;
+            let mut count = 0;
 
             if let Some(led) = self.led {
                 led.export()?;
                 led.set_direction(Direction::Out)?;
                 led.set_value(1)?;
             }
+            
+            self.signalize_ready_state()?;
 
-            let mut btn_poller = self.button.get_poller()?;
-            let mut count = 0;
-            println!("Ready");
             loop {
                 let btn_value = btn_poller.poll(5)?;
                 if let Some(val ) = btn_value {
