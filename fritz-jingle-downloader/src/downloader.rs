@@ -6,7 +6,7 @@ use std::{
 };
 
 use eyre::{eyre, Result};
-use fritz_jingle_db::jingle::Jingle;
+use fritz_jingle_db::{jingle::Jingle, JinglesDb};
 use futures::{stream, StreamExt};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use reqwest::{self, header, Client, Url};
@@ -19,10 +19,11 @@ use tokio::{fs, io::copy, io::AsyncWriteExt, task::JoinHandle};
 
 pub struct Downloader {
     jingles_page: Document,
+    jingles_path: PathBuf
 }
 
 impl Downloader {
-    pub async fn new() -> Result<Self> {
+    pub async fn new(jingles_path: PathBuf) -> Result<Self> {
         let page_body = reqwest::get("https://www.fritz.de/programm/jingles/")
             .await?
             .text()
@@ -31,13 +32,15 @@ impl Downloader {
         let jingles_page = Document::from(page_body.as_str());
         // dbg!(&jingles_page);
         // println!("{}", page_body);
-        Ok(Self { jingles_page })
+        Ok(Self { jingles_page, jingles_path })
     }
 
     pub async fn run(&self) -> Result<()> {
         let mut jingles: Vec<Jingle> = self.get_jingles_list().await?;
         self.download_jingles(&mut jingles).await?;
+        self.write_db(&jingles).await?;
 
+        dbg!(&jingles);
         Ok(())
     }
 
@@ -52,9 +55,9 @@ impl Downloader {
         for node in jingles_list {
             // dbg!(node);
             if let Some(jingle) = self.generate_jingle_from_node(node) {
-                // if count < 100 {
-                jingles.push(jingle);
-            // }
+                if count < 20 {
+                    jingles.push(jingle);
+                }
             } else {
                 continue;
             }
@@ -93,11 +96,18 @@ impl Downloader {
         Some(jingle)
     }
 
-    // TODO: Save downloaded file path to jingle
+    async fn write_db(&self, jingles: &Vec<Jingle>) -> Result<()> {
+        let jingles_json = serde_json::to_string_pretty(jingles)?;
+        fs::write(self.jingles_path.join("db.json"), jingles_json).await?;
+
+        Ok(())
+    } 
+
     // TODO: Create database file from that
     // TODO: Update mechanism
     async fn download_jingles(&self, jingles: &mut Vec<Jingle>) -> Result<()> {
-        let dl_path = Path::new(".").to_path_buf();
+        let dl_path = self.jingles_path.join("files");
+        fs::create_dir_all(&dl_path).await?;
         let multibar = std::sync::Arc::new(indicatif::MultiProgress::new());
 
         let main_pb = std::sync::Arc::new(
@@ -114,7 +124,7 @@ impl Downloader {
         let stream = stream::iter(jingles);
         let tasks = stream
             .enumerate()
-            .for_each_concurrent(Some(10), |(i, jingle)| {
+            .for_each_concurrent(Some(10), |(_i, jingle)| {
                 let multibar = multibar.clone();
                 let main_pb = main_pb.clone();
                 let dl_path = dl_path.clone();
@@ -126,7 +136,10 @@ impl Downloader {
                     ))
                     .await;
                     main_pb.inc(1);
-                    // jingle.file_path = String::from(file_path.as_os_str().to_str().unwrap());
+                    
+                    if let Ok(path) = file_path.unwrap() {
+                        jingle.file_path = String::from(path.to_string_lossy());
+                    }
                 }
             });
 

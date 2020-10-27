@@ -37,10 +37,10 @@ impl<'a> Cli<'a> {
         if let Some(files_path) = matches.value_of("FILES-PATH") {
             jingles_path = Path::new(files_path).to_path_buf();
         } else {
-            jingles_path = Path::new(".").to_path_buf();
+            jingles_path = Path::new("./jingles").to_path_buf();
         }
 
-        let downloader = Downloader::new().await?;
+        let downloader = Downloader::new(jingles_path).await?;
         downloader.run().await?;
 
         Ok(())
