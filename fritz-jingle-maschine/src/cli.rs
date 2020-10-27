@@ -24,10 +24,18 @@ impl<'a> Cli <'a> {
              Arg::new("BUTTON-PIN")
              .about("Specifies the Raspberry Pi GPIO pin for the trigger button. BCM numbering is used.")
              .takes_value(true)
-             .short('p')
-             .long("pin")
+             .short('b')
+             .long("button")
              .required(true)
-            );
+        )
+        .arg(
+            Arg::new("LED-PIN")
+            .about("Specifies the Raspberry Pi GPIO pin for the (optional) LED. BCM numbering is used.")
+            .takes_value(true)
+            .short('l')
+            .long("led")
+            .required(false)
+        );
 
         Self {
             app
@@ -41,6 +49,7 @@ impl<'a> Cli <'a> {
         
         let jingles_path;
         let button_pin;
+        let led_pin: Option<u64>;
 
         if let Some(files_path) = matches.value_of("FILES-PATH") {
             jingles_path = Path::new(files_path).to_path_buf();
@@ -54,7 +63,13 @@ impl<'a> Cli <'a> {
             panic!();
         }
 
-        let mut jingle_maschine = Maschine::new(button_pin, jingles_path);
+        if let Some(pin) = matches.value_of("LED-PIN") {
+            led_pin = Some(pin.parse::<u64>().unwrap());
+        } else {
+            led_pin = None;
+        }
+
+        let mut jingle_maschine = Maschine::new(jingles_path, button_pin, led_pin);
         jingle_maschine.run().unwrap();
     }
 }
