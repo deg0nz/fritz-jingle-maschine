@@ -35,17 +35,12 @@ impl Maschine {
 
         // Blink LED 3 times if connected
         if let Some(led) = self.led {
-            let sleep_duration = time::Duration::from_millis(100);
+            let sleep_duration = time::Duration::from_millis(200);
             for _n in 1..3 {
                 led.set_value(0)?;
                 thread::sleep(sleep_duration);
                 led.set_value(1)?;
                 thread::sleep(sleep_duration);
-                led.set_value(0)?;
-                thread::sleep(sleep_duration);
-                led.set_value(1)?;
-                thread::sleep(sleep_duration);
-                led.set_value(0)?;
             }
         }
 
