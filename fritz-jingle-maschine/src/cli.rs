@@ -1,12 +1,12 @@
+use super::maschine::Maschine;
 use clap::{App, Arg};
 use std::path::Path;
-use super::maschine::Maschine;
 
-pub struct Cli <'a> {
-    app: App<'a>
+pub struct Cli<'a> {
+    app: App<'a>,
 }
 
-impl<'a> Cli <'a> {
+impl<'a> Cli<'a> {
     pub fn new() -> Self {
         let app = App::new(env!("CARGO_PKG_NAME"))
         .version(env!("CARGO_PKG_VERSION"))
@@ -37,16 +37,14 @@ impl<'a> Cli <'a> {
             .required(false)
         );
 
-        Self {
-            app
-        }
+        Self { app }
     }
 
     pub fn process_arguments(&self) {
         // TODO: There has to be another solution to this than cloning?!
         let app = self.app.clone();
         let matches = app.get_matches().clone();
-        
+
         let jingles_path;
         let button_pin;
         let led_pin: Option<u64>;

@@ -1,14 +1,14 @@
 mod jingle_player;
 
+use eyre::Result;
 use jingle_player::JinglePlayer;
-use sysfs_gpio::{Direction, Edge, Pin};
 use std::{path::PathBuf, thread, time};
-use eyre::{Result, WrapErr};
+use sysfs_gpio::{Direction, Edge, Pin};
 
 pub struct Maschine {
     button: Pin,
     led: Option<Pin>,
-    player: JinglePlayer
+    player: JinglePlayer,
 }
 
 impl Maschine {
@@ -26,11 +26,11 @@ impl Maschine {
         Self {
             button,
             led,
-            player
+            player,
         }
     }
 
-    fn signalize_ready_state(&self) -> Result<(), sysfs_gpio::Error>{
+    fn signalize_ready_state(&self) -> Result<(), sysfs_gpio::Error> {
         println!("Ready");
 
         // Blink LED 3 times if connected
@@ -64,13 +64,12 @@ impl Maschine {
                 led.set_direction(Direction::Out)?;
                 led.set_value(1)?;
             }
-            
+
             self.signalize_ready_state()?;
 
             loop {
                 let btn_value = btn_poller.poll(5)?;
-                if let Some(val ) = btn_value {
-                    
+                if let Some(val) = btn_value {
                     if val == 0 {
                         println!("Button press no {}", count);
 

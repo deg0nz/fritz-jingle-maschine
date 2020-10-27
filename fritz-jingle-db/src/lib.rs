@@ -1,16 +1,16 @@
 pub mod jingle;
 
-use serde_json;
-use std::{error::Error, path::PathBuf};
-use std::io::prelude::*;
-use std::fs::File;
-use rand::Rng;
-use jingle::Jingle;
 use eyre::Result;
+use jingle::Jingle;
+use rand::Rng;
+use serde_json;
+use std::fs::File;
+use std::io::prelude::*;
+use std::{error::Error, path::PathBuf};
 
 pub struct JinglesDb {
     db: Vec<Jingle>,
-    path: PathBuf
+    path: PathBuf,
 }
 
 impl JinglesDb {
@@ -23,10 +23,7 @@ impl JinglesDb {
             serde_json::to_writer(file, &db)?;
         }
 
-        Ok(Self {
-            db,
-            path
-        })
+        Ok(Self { db, path })
     }
 
     pub fn load(&mut self) -> Result<()> {
@@ -37,7 +34,7 @@ impl JinglesDb {
         Ok(())
     }
 
-    pub fn save(&self) -> Result<()>{
+    pub fn save(&self) -> Result<()> {
         let f = File::open(&self.path)?;
         serde_json::to_writer(f, &self.db)?;
         Ok(())
@@ -45,7 +42,7 @@ impl JinglesDb {
 
     pub fn get_random_jingle(&self) -> Jingle {
         let mut rng = rand::thread_rng();
-        let index = rng.gen_range(0, self.db.len()-1);
+        let index = rng.gen_range(0, self.db.len() - 1);
         let db_object = self.db[index].clone();
         println!("Selected jingle no {} with name: {}", index, db_object.name);
         db_object

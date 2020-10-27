@@ -1,12 +1,12 @@
-use std::{ fs::File, path::PathBuf};
-use rodio::Device;
-use fritz_jingle_db::{ JinglesDb, jingle::Jingle };
 use eyre::Result;
+use fritz_jingle_db::{jingle::Jingle, JinglesDb};
+use rodio::Device;
+use std::{fs::File, path::PathBuf};
 
 pub struct JinglePlayer {
     device: Device,
     jingles_db: JinglesDb,
-    jingles_base_path: PathBuf
+    jingles_base_path: PathBuf,
 }
 
 impl JinglePlayer {
@@ -19,11 +19,11 @@ impl JinglePlayer {
         Self {
             device,
             jingles_db,
-            jingles_base_path
+            jingles_base_path,
         }
     }
 
-    pub fn play_file(&self, path: PathBuf) -> Result<()>{
+    pub fn play_file(&self, path: PathBuf) -> Result<()> {
         let file = File::open(path).unwrap();
         let sink = rodio::play_once(&self.device, file)?;
         sink.sleep_until_end();
@@ -31,7 +31,7 @@ impl JinglePlayer {
         Ok(())
     }
 
-    pub fn play_random(&self) -> Result<()>{
+    pub fn play_random(&self) -> Result<()> {
         let jingle = self.jingles_db.get_random_jingle();
         self.print_jingle_playing(&jingle);
         let jingle_file_path = self.jingles_base_path.join(jingle.file_path);
@@ -41,6 +41,10 @@ impl JinglePlayer {
     }
 
     fn print_jingle_playing(&self, jingle: &Jingle) {
-        println!("Playing {name} (Published on {date})", name = jingle.name, date = jingle.date_time);
+        println!(
+            "Playing {name} (Published on {date})",
+            name = jingle.name,
+            date = jingle.date_time
+        );
     }
 }

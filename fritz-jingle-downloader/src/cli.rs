@@ -1,14 +1,14 @@
-use std::path::Path;
 use super::downloader::Downloader;
-use eyre::Result;
 use clap::{App, Arg, ArgMatches};
+use eyre::Result;
 use futures::poll;
+use std::path::Path;
 
-pub struct Cli <'a> {
-    app: App<'a>
+pub struct Cli<'a> {
+    app: App<'a>,
 }
 
-impl<'a> Cli <'a> {
+impl<'a> Cli<'a> {
     pub fn new() -> Self {
         let app = App::new(env!("CARGO_PKG_NAME"))
         .version(env!("CARGO_PKG_VERSION"))
@@ -24,16 +24,14 @@ impl<'a> Cli <'a> {
             .required(true)
         );
 
-        Self {
-            app
-        }
+        Self { app }
     }
 
-    pub async fn process_arguments(&self) ->Result<()> {
+    pub async fn process_arguments(&self) -> Result<()> {
         // TODO: There has to be another solution to this than cloning?!
         let app = self.app.clone();
         let matches = app.get_matches().clone();
-         
+
         let jingles_path;
 
         if let Some(files_path) = matches.value_of("FILES-PATH") {
@@ -41,7 +39,7 @@ impl<'a> Cli <'a> {
         } else {
             jingles_path = Path::new(".").to_path_buf();
         }
-        
+
         let downloader = Downloader::new().await?;
         downloader.run().await?;
 
