@@ -53,14 +53,14 @@ The downloader creates the following file structure at the parameter given to `P
 jingles/
 ├── db.json
 └── files
-    ├── 1\ Harz\ 4\ Kinder.mp3
-    ├── 25\ Jahre\ Fritz\ (Mix-Up).mp3
-    ├── 3\ Megahits\ am\ Stück.mp3
-    ├── 5\ Dinge.mp3
-    ├── 5\ Kilo\ Freude.mp3
-    ├── 6\ Monate.mp3
+    ├── 1 Harz 4 Kinder.mp3
+    ├── 25 Jahre Fritz (Mix-Up).mp3
+    ├── 3 Megahits am Stück.mp3
+    ├── 5 Dinge.mp3
+    ├── 5 Kilo Freude.mp3
+    ├── 6 Monate.mp3
     ├── 666.mp3
-    ├── 90\ Jahre\ S-Bahn.mp3
+    ├── 90 Jahre S-Bahn.mp3
     ├── Abfolge.mp3
     ...
 ```
