@@ -48,44 +48,42 @@ impl Maschine {
     }
 
     pub fn run(&mut self) -> Result<()> {
-        self.button.with_exported(|| {
-            self.button.set_direction(Direction::In)?;
-            self.button.set_edge(Edge::FallingEdge)?;
-            let mut btn_poller = self.button.get_poller()?;
-            let mut count = 0;
+        self.button.export()?;
+        self.button.set_direction(Direction::In)?;
+        self.button.set_edge(Edge::FallingEdge)?;
 
-            if let Some(led) = self.led {
-                led.export()?;
-                led.set_direction(Direction::Out)?;
-                led.set_value(1)?;
-            }
+        let mut btn_poller = self.button.get_poller()?;
+        let mut count = 0;
 
-            self.signalize_ready_state()?;
+        if let Some(led) = self.led {
+            led.export()?;
+            led.set_direction(Direction::Out)?;
+            led.set_value(1)?;
+        }
 
-            loop {
-                let btn_value = btn_poller.poll(5)?;
-                if let Some(val) = btn_value {
-                    if val == 0 {
-                        println!("Button press no {}", count);
+        self.signalize_ready_state()?;
 
-                        if let Some(led) = self.led {
-                            led.set_value(0)?;
-                        }
+        loop {
+            let btn_value = btn_poller.poll(5)?;
+            if let Some(val) = btn_value {
+                if val == 0 {
+                    println!("Button press no {}", count);
 
-                        if let Err(e) = self.player.play_random() {
-                            dbg!(e);
-                        };
-
-                        if let Some(led) = self.led {
-                            led.set_value(1)?;
-                        }
+                    if let Some(led) = self.led {
+                        led.set_value(0)?;
                     }
 
-                    count += 1;
-                }
-            }
-        })?;
+                    if let Err(e) = self.player.play_random() {
+                        dbg!(e);
+                    };
 
-        Ok(())
+                    if let Some(led) = self.led {
+                        led.set_value(1)?;
+                    }
+                }
+
+                count += 1;
+            }
+        }
     }
 }
