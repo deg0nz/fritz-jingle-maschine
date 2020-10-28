@@ -16,7 +16,7 @@ impl<'a> Cli<'a> {
         .author(env!("CARGO_PKG_AUTHORS"))
         .arg(
             Arg::new("FILES-PATH")
-            .about("Downloads or updates all the jingles from Fritz to a given path. If a db.json is found in the path, an update is assumed.")
+            .about("Downloads or updates (-> not yet!) all the jingles from Fritz to a given path. If a db.json is found in the path, an update is assumed. (not yet!)")
             .short('f')
             .long("files-path")
             .takes_value(true)
@@ -40,7 +40,7 @@ impl<'a> Cli<'a> {
             jingles_path = Path::new("./jingles").to_path_buf();
         }
 
-        let downloader = Downloader::new(jingles_path).await?;
+        let mut downloader = Downloader::new(jingles_path).await?;
         downloader.run().await?;
 
         Ok(())

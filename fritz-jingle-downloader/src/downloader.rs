@@ -18,7 +18,8 @@ use select::{
 use tokio::{fs, io::copy, io::AsyncWriteExt, task::JoinHandle};
 
 pub struct Downloader {
-    jingles_page: Document,
+    jingle_page: Document,
+    jingle_db: JinglesDb,
     jingles_path: PathBuf
 }
 
@@ -28,25 +29,35 @@ impl Downloader {
             .await?
             .text()
             .await?;
+        let jingle_page = Document::from(page_body.as_str());
+        let jingle_db = JinglesDb::new(jingles_path.join("db.json"))?;
 
-        let jingles_page = Document::from(page_body.as_str());
-        // dbg!(&jingles_page);
-        // println!("{}", page_body);
-        Ok(Self { jingles_page, jingles_path })
+        Ok(Self { jingle_page, jingle_db, jingles_path })
     }
 
-    pub async fn run(&self) -> Result<()> {
+    pub async fn run(&mut self) -> Result<()> {
+        self.jingle_db.load()?;
+
+        // if self.jingle_db.is_empty() {
+        //     println!("Starting with empty database. Downloading all available jingles.")
+        // } else {
+        //     println!("Database contains jingles. Checking for new jingles.")
+        // }
+
         let mut jingles: Vec<Jingle> = self.get_jingles_list().await?;
         self.download_jingles(&mut jingles).await?;
-        self.write_db(&jingles).await?;
 
-        dbg!(&jingles);
+        // TODO: This does not work without creating duplicates
+        // self.jingle_db.push_list(&mut jingles);
+
+        self.jingle_db.set_db(jingles);
+        self.jingle_db.save()?;
         Ok(())
     }
 
     async fn get_jingles_list(&self) -> Result<Vec<Jingle>> {
         let jingles_list = self
-            .jingles_page
+            .jingle_page
             .find(Attr("id", "main").descendant(Class("last").descendant(Name("article"))));
 
         let mut count: i32 = 0;
@@ -65,9 +76,7 @@ impl Downloader {
             count += 1;
         }
 
-        // for jingle in jingles {
-        //     Downloader::download(jingle, Path::new(".").to_path_buf()).await?;
-        // }
+        println!("Found {} jingles to download.", jingles.len());
 
         Ok(jingles)
     }
@@ -91,19 +100,15 @@ impl Downloader {
             file_path: "foo".to_string(),
         };
 
-        // dbg!(&jingle);
+        // TODO: Does not work yet!
+        // Skip the ones we alrady have
+        if self.jingle_db.contains(&jingle) {
+            return None
+        }
 
         Some(jingle)
     }
 
-    async fn write_db(&self, jingles: &Vec<Jingle>) -> Result<()> {
-        let jingles_json = serde_json::to_string_pretty(jingles)?;
-        fs::write(self.jingles_path.join("db.json"), jingles_json).await?;
-
-        Ok(())
-    } 
-
-    // TODO: Create database file from that
     // TODO: Update mechanism
     async fn download_jingles(&self, jingles: &mut Vec<Jingle>) -> Result<()> {
         let dl_path = self.jingles_path.join("files");
@@ -129,7 +134,7 @@ impl Downloader {
                 let main_pb = main_pb.clone();
                 let dl_path = dl_path.clone();
                 async move {
-                    let file_path = tokio::task::spawn(Downloader::download_task(
+                    let filename = tokio::task::spawn(Downloader::download_task(
                         jingle.clone(),
                         multibar,
                         dl_path,
@@ -137,8 +142,8 @@ impl Downloader {
                     .await;
                     main_pb.inc(1);
                     
-                    if let Ok(path) = file_path.unwrap() {
-                        jingle.file_path = String::from(path.to_string_lossy());
+                    if let Ok(filename) = filename.unwrap() {
+                        jingle.file_path = format!("./files/{}", filename);
                     }
                 }
             });
@@ -164,7 +169,7 @@ impl Downloader {
         jingle: Jingle,
         multibar: Arc<MultiProgress>,
         to_dir: PathBuf,
-    ) -> Result<PathBuf> {
+    ) -> Result<String> {
         let url = Url::parse(jingle.url.as_str())?;
         let client = Client::new();
 
@@ -214,12 +219,7 @@ impl Downloader {
             outfile.write(&chunk).await?;
         }
 
-        // println!(
-        //     "Download of '{}' has been completed.",
-        //     filename
-        // );
-
         progress_bar.finish_and_clear();
-        Ok(file_path.to_path_buf())
+        Ok(filename)
     }
 }
