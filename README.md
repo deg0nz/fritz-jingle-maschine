@@ -11,11 +11,15 @@ The project is splitted into three parts:
 * `fritz-jingle-downloader` - a program that downloads or updates all the jingles from the fritz website
 * `fritz-jingle-db` - a shared library for handling metadata about the jingles in a JSON file
 
-The reason for the split was, that the compilation on an old Raspberry Pi is takes a looooooooong time (One of the reasons for this project was giving an old Raspberry Pi 1 a new purpose). To keep the amount of code for the Raspi at a minimum, the `maschine`-part has it's own workspace.
+The parts of the project are split into packages because the compilation on an old Raspberry Pi takes a looooooooong time (one of the reasons for this project was giving an old Raspberry Pi 1 a new purpose). 
+
+Because of that, the code for the `maschine`-part is kept to a minimum (I wasn't able to build a working container for compilation with [`cross`](https://github.com/rust-embedded/cross)).
 
 ## Hardware
 
-TODO
+* Raspberry Pi
+* Push-button (for triggering the playback)
+* 3.3V compatible LED (to indicate readiness)
 
 ## Build
 
@@ -39,6 +43,75 @@ cargo build --release --package fritz-jingle-maschine
 ## Run
 
 You will find the executables in: `<PROJECT_ROOT>/target/release`.
+
+### `fritz-jingle-downloader`
+
+It is recommended to download the jingles to your computer and copy them to the Pi.
+The downloader creates the following file structure at the parameter given to `PATH` (in this case, the target folder is `jingles`):
+
+```
+jingles/
+├── db.json
+└── files
+    ├── 1\ Harz\ 4\ Kinder.mp3
+    ├── 25\ Jahre\ Fritz\ (Mix-Up).mp3
+    ├── 3\ Megahits\ am\ Stück.mp3
+    ├── 5\ Dinge.mp3
+    ├── 5\ Kilo\ Freude.mp3
+    ├── 6\ Monate.mp3
+    ├── 666.mp3
+    ├── 90\ Jahre\ S-Bahn.mp3
+    ├── Abfolge.mp3
+    ...
+```
+
+#### Command line options
+
+```
+fritz-jingle-downloader 0.2.2
+Beh <b@kayuk.de>
+
+
+USAGE:
+    fritz-jingle-downloader --jingles-path <PATH>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -j, --jingles-path <PATH>    Downloads or updates all the jingles from Fritz to a given path. If
+                                 a db.json is found in the path, missing jingles are downloaded.
+```
+
+### `fritz-jingle-maschine`
+
+The `maschine` takes the path created by the downloader. It reads the `db.json` created by the downloader.
+
+```
+fritz-jingle-maschine 0.2.1
+Beh <b@kayuk.de>
+
+
+USAGE:
+    fritz-jingle-maschine [OPTIONS] --files-path <FILES-PATH> --button <BUTTON-PIN>
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -b, --button <BUTTON-PIN>        Specifies the Raspberry Pi GPIO pin for the trigger button. BCM
+                                     numbering is used.
+    -f, --files-path <FILES-PATH>    Path to the Jingles files containing db.json and a folder
+                                     called files containing the MP3s.
+    -l, --led <LED-PIN>              Specifies the Raspberry Pi GPIO pin for the (optional) LED. BCM
+                                     numbering is used.
+```
+
+##  Autostart
+
+On a Pi with RaspberryOS you can use the systemd service file in this repo. Adjust the parameters to your needs.
 
 ## Disclaimer
 
