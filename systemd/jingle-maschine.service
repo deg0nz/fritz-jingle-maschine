@@ -1,0 +1,12 @@
+[Unit]
+Description=Fritz Jingle Maschine
+
+[Service]
+Type=simple
+ExecStart=/home/pi/Jingle-Maschine/target/release/fritz-jingle-maschine --button 15 --led 14 --files-path /home/pi/jingles
+Restart=on-failure
+RestartSec=10
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
