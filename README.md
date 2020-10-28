@@ -18,8 +18,8 @@ Because of that, the code for the `maschine`-part is kept to a minimum (I wasn't
 ## Hardware
 
 * Raspberry Pi
-* Push-button (for triggering the playback)
-* 3.3V compatible LED (to indicate readiness)
+* Push-button for triggering the playback. The pin is configured as pull-down.
+* 3.3V compatible LED to indicate readiness (optional)
 
 ## Build
 
@@ -87,6 +87,8 @@ OPTIONS:
 ### `fritz-jingle-maschine`
 
 The `maschine` takes the path created by the downloader. It reads the `db.json` created by the downloader.
+
+#### Command line options
 
 ```
 fritz-jingle-maschine 0.2.1
