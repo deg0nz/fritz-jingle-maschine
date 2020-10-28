@@ -20,7 +20,7 @@ use tokio::{fs, io::copy, io::AsyncWriteExt, task::JoinHandle};
 pub struct Downloader {
     jingle_page: Document,
     jingle_db: JinglesDb,
-    jingles_path: PathBuf
+    jingles_path: PathBuf,
 }
 
 impl Downloader {
@@ -32,30 +32,36 @@ impl Downloader {
         let jingle_page = Document::from(page_body.as_str());
         let jingle_db = JinglesDb::new(jingles_path.join("db.json"))?;
 
-        Ok(Self { jingle_page, jingle_db, jingles_path })
+        Ok(Self {
+            jingle_page,
+            jingle_db,
+            jingles_path,
+        })
     }
 
     pub async fn run(&mut self) -> Result<()> {
         self.jingle_db.load()?;
 
-        // if self.jingle_db.is_empty() {
-        //     println!("Starting with empty database. Downloading all available jingles.")
-        // } else {
-        //     println!("Database contains jingles. Checking for new jingles.")
-        // }
+        if self.jingle_db.is_empty() {
+            println!("Starting with empty database. Downloading all available jingles.")
+        } else {
+            println!("Database contains jingles. Checking for new jingles.")
+        }
 
-        let mut jingles: Vec<Jingle> = self.get_jingles_list().await?;
-        self.download_jingles(&mut jingles).await?;
+        let mut download_list: Vec<Jingle> = self.get_jingles_download_list().await?;
 
-        // TODO: This does not work without creating duplicates
-        // self.jingle_db.push_list(&mut jingles);
-
-        self.jingle_db.set_db(jingles);
-        self.jingle_db.save()?;
+        if download_list.len() == 0 {
+            println!("No new jingles to download.");
+        } else {
+            self.download_jingles(&mut download_list).await?;
+            self.jingle_db.push_list(&mut download_list);
+            self.jingle_db.save()?;
+        }
+    
         Ok(())
     }
 
-    async fn get_jingles_list(&self) -> Result<Vec<Jingle>> {
+    async fn get_jingles_download_list(&self) -> Result<Vec<Jingle>> {
         let jingles_list = self
             .jingle_page
             .find(Attr("id", "main").descendant(Class("last").descendant(Name("article"))));
@@ -64,19 +70,18 @@ impl Downloader {
         let mut jingles: Vec<Jingle> = Vec::new();
 
         for node in jingles_list {
-            // dbg!(node);
-            if let Some(jingle) = self.generate_jingle_from_node(node) {
-                // if count < 20 {
-                    jingles.push(jingle);
-                // }
-            } else {
-                continue;
+            if count < 110 {
+                if let Some(jingle) = self.generate_jingle_from_node(node) {
+                    if !self.jingle_db.contains(&jingle) {
+                        jingles.push(jingle);
+                    }
+                } else {
+                    continue;
+                }
             }
 
             count += 1;
         }
-
-        println!("Found {} jingles to download.", jingles.len());
 
         Ok(jingles)
     }
@@ -100,16 +105,9 @@ impl Downloader {
             file_path: "foo".to_string(),
         };
 
-        // TODO: Does not work yet!
-        // Skip the ones we alrady have
-        if self.jingle_db.contains(&jingle) {
-            return None
-        }
-
         Some(jingle)
     }
 
-    // TODO: Update mechanism
     async fn download_jingles(&self, jingles: &mut Vec<Jingle>) -> Result<()> {
         let dl_path = self.jingles_path.join("files");
         fs::create_dir_all(&dl_path).await?;
@@ -141,7 +139,7 @@ impl Downloader {
                     ))
                     .await;
                     main_pb.inc(1);
-                    
+
                     if let Ok(filename) = filename.unwrap() {
                         jingle.file_path = format!("./files/{}", filename);
                     }

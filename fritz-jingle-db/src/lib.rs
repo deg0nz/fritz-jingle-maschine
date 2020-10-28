@@ -57,9 +57,9 @@ impl JinglesDb {
         }
     }
 
-    // TODO: This seems not to be working... needs investigation!
     pub fn contains(&self, jingle: &Jingle) -> bool {
-        self.db.contains(jingle)
+        let contains = self.db.contains(jingle);
+        contains
     }
 
     pub fn push_list(&mut self, list: &mut Vec<Jingle>) {
