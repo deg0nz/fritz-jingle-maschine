@@ -1,5 +1,4 @@
 use std::{
-    io::{self, Read},
     path::Path,
     path::PathBuf,
     sync::Arc,
@@ -8,14 +7,14 @@ use std::{
 use eyre::{eyre, Result};
 use fritz_jingle_db::{jingle::Jingle, JinglesDb};
 use futures::{stream, StreamExt};
-use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use indicatif::{MultiProgress, ProgressStyle};
 use reqwest::{self, header, Client, Url};
 use select::{
     document::Document,
     node::Node,
     predicate::{Attr, Class, Name, Predicate},
 };
-use tokio::{fs, io::copy, io::AsyncWriteExt, task::JoinHandle};
+use tokio::{fs, io::AsyncWriteExt};
 
 pub struct Downloader {
     jingle_page: Document,

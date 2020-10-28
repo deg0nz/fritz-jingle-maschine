@@ -1,7 +1,6 @@
 use super::downloader::Downloader;
-use clap::{App, Arg, ArgMatches};
+use clap::{App, Arg};
 use eyre::Result;
-use futures::poll;
 use std::path::Path;
 
 pub struct Cli<'a> {

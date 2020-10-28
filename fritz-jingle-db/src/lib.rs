@@ -6,7 +6,7 @@ use rand::Rng;
 use serde_json;
 use std::fs::{File, OpenOptions};
 use std::io::prelude::*;
-use std::{error::Error, path::PathBuf};
+use std::path::PathBuf;
 
 #[derive(Debug)]
 pub struct JinglesDb {
