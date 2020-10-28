@@ -11,6 +11,6 @@ pub struct Jingle {
 
 impl PartialEq for Jingle {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
+        self.url == other.url
     }
 }
