@@ -14,9 +14,10 @@ impl<'a> Cli<'a> {
         .about(env!("CARGO_PKG_DESCRIPTION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .arg(
-            Arg::new("FILES-PATH")
-            .short('f')
-            .long("files-path")
+            Arg::new("JINGLES-PATH")
+            .about("Downloads or updates all the jingles from Fritz to a given path. If a db.json is found in the path, missing jingles are downloaded.")
+            .short('j')
+            .long("jingles-path")
             .takes_value(true)
             .value_name("PATH")
             .required(true)
@@ -32,7 +33,7 @@ impl<'a> Cli<'a> {
 
         let jingles_path;
 
-        if let Some(files_path) = matches.value_of("FILES-PATH") {
+        if let Some(files_path) = matches.value_of("JINGLES-PATH") {
             jingles_path = Path::new(files_path).to_path_buf();
         } else {
             jingles_path = Path::new("./jingles").to_path_buf();
