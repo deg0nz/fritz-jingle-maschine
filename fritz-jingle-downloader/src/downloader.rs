@@ -66,11 +66,9 @@ impl Downloader {
             .jingle_page
             .find(Attr("id", "main").descendant(Class("last").descendant(Name("article"))));
 
-        let mut count: i32 = 0;
         let mut jingles: Vec<Jingle> = Vec::new();
 
         for node in jingles_list {
-            if count < 110 {
                 if let Some(jingle) = self.generate_jingle_from_node(node) {
                     if !self.jingle_db.contains(&jingle) {
                         jingles.push(jingle);
@@ -78,9 +76,6 @@ impl Downloader {
                 } else {
                     continue;
                 }
-            }
-
-            count += 1;
         }
 
         Ok(jingles)
