@@ -15,7 +15,6 @@ impl<'a> Cli<'a> {
         .author(env!("CARGO_PKG_AUTHORS"))
         .arg(
             Arg::new("FILES-PATH")
-            .about("Downloads or updates (-> not yet!) all the jingles from Fritz to a given path. If a db.json is found in the path, an update is assumed. (not yet!)")
             .short('f')
             .long("files-path")
             .takes_value(true)
