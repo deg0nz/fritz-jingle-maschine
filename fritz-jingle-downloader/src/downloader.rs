@@ -212,6 +212,8 @@ impl Downloader {
         }
 
         progress_bar.finish_and_clear();
+        outfile.flush().await?;
+
         Ok(filename)
     }
 }
